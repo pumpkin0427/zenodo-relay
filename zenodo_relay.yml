@@ -1,0 +1,29 @@
+name: Zenodo Relay
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 下载 Zenodo 权重
+        run: |
+          curl -sSL --retry 5 --retry-delay 10 -o diffms_checkpoints.tar.gz \
+            "https://zenodo.org/records/15122968/files/diffms_checkpoints.tar.gz?download=1"
+          ls -lh diffms_checkpoints.tar.gz
+          echo "--- md5 校验 ---"
+          md5sum diffms_checkpoints.tar.gz
+
+      - name: 上传到 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create diffms-checkpoints diffms_checkpoints.tar.gz \
+            --title "DiffMS checkpoints (zenodo 15122968)" \
+            --notes "md5: 73d8b29e6f29fc871f76f136d96caf7d" \
+            --repo ${{ github.repository }} || \
+          gh release upload diffms-checkpoints diffms_checkpoints.tar.gz --clobber \
+            --repo ${{ github.repository }}
