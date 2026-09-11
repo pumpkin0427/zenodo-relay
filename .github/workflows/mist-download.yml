@@ -1,0 +1,25 @@
+name: Download MIST models from Zenodo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download MIST pretrained models
+        run: |
+          wget -O mist_fp_canopus_pretrain.ckpt "https://zenodo.org/record/8316682/files/mist_fp_canopus_pretrain.ckpt"
+          wget -O mist_contrastive_canopus_pretrain.ckpt "https://zenodo.org/record/8316682/files/mist_contrastive_canopus_pretrain.ckpt"
+          ls -lh
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: mist-assets
+          files: |
+            mist_fp_canopus_pretrain.ckpt
+            mist_contrastive_canopus_pretrain.ckpt
