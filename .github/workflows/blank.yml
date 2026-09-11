@@ -6,26 +6,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download all MADGEN files
+      - name: Download data files
         run: |
           mkdir -p madgen_assets
-          # Record 15036069: data files
-          for f in msgym.pkl canopus.pkl; do
-            curl -L -o "madgen_assets/$f" "https://zenodo.org/records/15036069/files/$f?download=1"
-          done
-          # Record 17115068: checkpoints + retrieval - list all files via API
-          curl -s "https://zenodo.org/api/records/17115068" | python3 -c "
-import sys, json
-d = json.load(sys.stdin)
-for f in d.get('files', []):
-    print(f['key'], f['links']['self'])
-" > filelist.txt
+          curl -L -o madgen_assets/msgym.pkl "https://zenodo.org/records/15036069/files/msgym.pkl?download=1"
+          curl -L -o madgen_assets/canopus.pkl "https://zenodo.org/records/15036069/files/canopus.pkl?download=1"
+      - name: List and download checkpoint files
+        run: |
+          curl -s "https://zenodo.org/api/records/17115068" | jq -r '.files[] | "\(.key) \(.links.self)"' > filelist.txt
           cat filelist.txt
           while read -r key url; do
             curl -L -o "madgen_assets/$key" "$url"
           done < filelist.txt
           ls -lh madgen_assets/
-          md5sum madgen_assets/*
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
