@@ -1,0 +1,29 @@
+name: Download MassSpecGym data
+on:
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download 4M molecules file
+        run: |
+          curl -L -o MassSpecGym_molecules_4M.tsv \
+            "https://huggingface.co/datasets/roman-bushuiev/MassSpecGym/resolve/main/molecules/MassSpecGym_molecules_MCES2_disjoint_with_test_fold_4M.tsv"
+          ls -lh MassSpecGym_molecules_4M.tsv
+
+      - name: Download main dataset
+        run: |
+          curl -L -o MassSpecGym1.5.tsv \
+            "https://huggingface.co/datasets/roman-bushuiev/MassSpecGym/resolve/main/MassSpecGym1.5.tsv"
+          ls -lh MassSpecGym1.5.tsv
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: massspecgym-data
+          files: |
+            MassSpecGym_molecules_4M.tsv
+            MassSpecGym1.5.tsv
