@@ -1,0 +1,21 @@
+name: Download MADGEN ranks files
+on:
+  workflow_dispatch:
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download ranks files from Zenodo
+        run: |
+          curl -L -o ranks_canopus_pred.pkl "https://zenodo.org/records/17115068/files/ranks_canopus_pred.pkl"
+          curl -L -o ranks_msgym_pred.pkl "https://zenodo.org/records/17115068/files/ranks_msgym_pred.pkl"
+          ls -la ranks_*.pkl
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: madgen-ranks
+          files: |
+            ranks_canopus_pred.pkl
+            ranks_msgym_pred.pkl
